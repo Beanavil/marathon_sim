@@ -1,0 +1,53 @@
+{
+    "NUM_RUNNERS": 100,
+    "RACE_DISTANCE": 42.195,
+    "STATIONS": {
+        "5": ["liquids", "wcs", "redcross"],
+        "10": ["liquids", "wcs", "redcross"],
+        "15": ["liquids", "wcs", "redcross"],
+        "20": ["liquids", "solids", "wcs", "redcross"],
+        "25": ["liquids", "solids", "wcs", "redcross"],
+        "27.5": ["liquids", "wcs"],
+        "30": ["liquids", "solids", "wcs", "redcross"],
+        "32.5": ["liquids", "wcs"],
+        "35": ["liquids", "solids", "wcs", "redcross"],
+        "37.5": ["liquids", "wcs"],
+        "40": ["liquids", "solids", "wcs", "redcross"]
+    },
+    "SERVICES": {
+        "liquids": 10000,
+        "solids": 4000,
+        "wcs": 6,
+        "redcross": 4
+    },
+    "NEED_INCREASE_DISTR": {
+        "liquids": [30, 50],
+        "solids": [5, 15],
+        "wcs": [2, 6],
+        "redcross": [1, 5]
+    },
+    "WAIT_DISTR": {
+        "liquids": [30, 60],
+        "solids": [5, 10],
+        "wcs": [60, 180],
+        "redcross": [600, 1800]
+    },
+    "WEATHER_MODEL": {
+        "temperature": {
+            "Low": 0,
+            "Medium": 2.4,
+            "High": 112.2
+        },
+        "humidity": {
+            "Low": 0,
+            "Medium": 4.8,
+            "High": 33.6
+        },
+        "wind": {
+            "Low": 0,
+            "Medium": 90.6,
+            "High": 81.0
+        }
+    },
+    "CUTOFF": 911412
+}
