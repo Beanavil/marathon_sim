@@ -5,6 +5,9 @@ import random
 import json
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 
 ##########################
 #     Data obtaining     #
@@ -167,13 +170,72 @@ marathon_sim = RaceSimulation(env)
 ##########################
 
 # Run simulation
+simulation_results = []
 for index, row in weather_data.iterrows():
     date, temperature, humidity, wind = row
     print(f"Running simulation for date {date} with temperature {temperature}, humidity {humidity}, wind {wind}")
     runners, resources = marathon_sim.run([temperature, humidity, wind], 12895, 1500) # magic numbers come from data analysis (data/process_marathon_data.r)
+    avg_pace = np.mean([runner.pace for runner in runners])
+    simulation_results.append((date, avg_pace))
 
 
 
 ##########################
 #  Simulation analysis   #
 ##########################
+
+# Get day with best average results
+results_df = pd.DataFrame(simulation_results, columns=['Date', 'Average pace'])
+best_day = results_df.loc[results_df['Average pace'].idxmin()]
+print(f"\nBest Simulation Day: {best_day['Date']} with average runners' pace: {best_day['Average pace']:.2f}")
+
+# Get also the month with best results
+results_df['Date'] = pd.to_datetime(results_df['Date'])
+results_df['Month'] = results_df['Date'].dt.to_period('M')
+monthly_avg_pace = results_df.groupby('Month')['Average pace'].mean()
+best_month = monthly_avg_pace.idxmin()
+best_pace = monthly_avg_pace.min()
+
+# Set up plots style
+sns.set_style("whitegrid")
+
+# Save PNG graph with average runner's pace per day of the year
+plt.figure(figsize=(12, 6))
+norm = mcolors.Normalize(vmin=results_df['Average pace'].min(), vmax=results_df['Average pace'].max())
+colors = plt.cm.coolwarm(norm(results_df['Average pace']))
+bars = plt.bar(results_df['Date'], results_df['Average pace'], color=colors)
+plt.axhline(y=best_day['Average pace'], color='gold', linestyle='--', linewidth=2, label=f'Best day: {best_day["Date"]}')
+plt.xlabel('Date', fontsize=14, fontweight='bold')
+plt.ylabel('Average pace', fontsize=14, fontweight='bold')
+plt.title('Simulation results: average runner pace per day', fontsize=16, fontweight='bold', color='darkslateblue')
+plt.xticks(rotation=45, fontsize=10)
+plt.yticks(fontsize=12)
+plt.legend(fontsize=12)
+plt.tight_layout()
+plt.savefig("results/simulation_results.png")
+
+# Plot also a histogram with the distribution of the paces
+plt.figure(figsize=(10, 5))
+plt.hist(results_df['Average pace'], bins=30, color='skyblue', edgecolor='black', alpha=0.7)
+plt.xlabel('Average pace')
+plt.ylabel('Frequency')
+plt.title('Distribution of daily average paces')
+plt.savefig("results/pace_distribution_results.png")
+
+# Save also a plot for the results per month
+plt.figure(figsize=(12, 6))
+norm_month = mcolors.Normalize(vmin=monthly_avg_pace.min(), vmax=monthly_avg_pace.max())
+colors_month = plt.cm.coolwarm(norm_month(monthly_avg_pace))
+bars_month = plt.bar(monthly_avg_pace.index.astype(str), monthly_avg_pace, color=colors_month, edgecolor='black')
+bars_month[monthly_avg_pace.index.get_loc(best_month)].set_color('gold')
+bars_month[monthly_avg_pace.index.get_loc(best_month)].set_edgecolor('darkgoldenrod')
+plt.axhline(y=best_pace, color='crimson', linestyle='--', linewidth=2, label=f'Best month: {best_month}')
+plt.xlabel('Month', fontsize=14, fontweight='bold')
+plt.ylabel('Average pace', fontsize=14, fontweight='bold')
+plt.title('Simulation results: average runner pace per month', fontsize=16, fontweight='bold', color='darkslateblue')
+plt.xticks(rotation=45, fontsize=12)
+plt.yticks(fontsize=12)
+plt.legend(fontsize=12)
+plt.grid(axis='y', linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.savefig("results/monthly_simulation_results.png")
