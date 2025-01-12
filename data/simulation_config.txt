@@ -1,0 +1,51 @@
+NUM_RUNNERS=100
+RACE_DISTANCE=42.195
+STATIONS={(5: ['liquids', 'wcs', 'redcross'],
+           10: ['liquids', 'wcs', 'redcross'],
+           15: ['liquids', 'wcs', 'redcross'],
+           20: ['liquids', 'solids', 'wcs', 'redcross'],
+           25: ['liquids', 'solids', 'wcs', 'redcross'],
+           27.5: ['liquids', 'wcs'],
+           30: ['liquids', 'solids', 'wcs', 'redcross'],
+           32.5: ['liquids', 'wcs'],
+           35: ['liquids', 'solids', 'wcs', 'redcross'],
+           37.5: ['liquids', 'wcs'],
+           40: ['liquids', 'solids', 'wcs', 'redcross'])}
+SERVICES={'liquids': 10000, # estimate 0.5L/runner per station -> 0.5 * 20000 = 10000L
+          'solids': 2,      # estimate 0.2gr/runner per station -> 0.2 * 20000 = 4000gr
+          'wcs': 6,         # estimate 3 wcs per gender -> 6 wcs
+          'redcross': 4}    # estimate 4 redcross volunteers per station
+SERVICES_DISTR={'liquids': 2,
+                'solids': 2,
+                'wcs': 5,
+                'redcross': 30}
+NEED_INCREASE_DISTR={
+    'liquids': [30, 50], # Min 1 to 2 stops per hour
+    'solids': [5, 15],   # Min 0.5 to 1.5 per hour
+    'wcs': [2, 6],       # 0.2 to 0.6 per hour (so 1 or 2 per marathon)
+    'redcross': [1, 5],  # Slower increase
+}
+WAIT_DISTR={
+    'liquids': [30, 60],      # From 30 seconds to 1 minute
+    'solids': [5, 10],        # From 5 to 10 seconds
+    'wcs': [60, 180],         # From 1 to 3 minutes
+    'redcross': [600, 1800],  # From 10 to 30 minutes
+}
+WEATHER_MODEL={
+    'temperature': {
+        'medium': 0.04 * 60,
+        'high': 1.87 * 60
+    },
+    'humidity': {
+        'medium': 0.08 * 60,
+        'high': 0.56 * 60
+    },
+    'wind': {
+        'medium': 1.51 * 60,
+        'high': 1.35 * 60
+    }
+}
+THETA=0.05   # Impact of temperature on pace
+SIGMA=0.02   # Impact of humidity on pace
+LAMBDA=0.03  # Impact of wind speed on pace
+GAMMA=0.01   # Influence of age on pace
