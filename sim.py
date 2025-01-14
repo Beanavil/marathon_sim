@@ -180,23 +180,34 @@ env = simpy.Environment()
 
 # Run simulation and perform analysis
 simulation_results = {}
+num_repetitions = 15
 budget_scenarios = {'tight': 0.3, 'adjusted': 1.0, 'slack': 2}
 for scenario, factor in budget_scenarios.items():
-  simulation_results[scenario] = []
+  all_simulation_runs = []
+  print(f"\nRunning {num_repetitions} simulations for scenario {scenario}")
+  for _ in range(num_repetitions):
+    temp_results = []
 
-  ##########################
-  #   Simulation running   #
-  ##########################
+    # Populate simulation configuration data.
+    marathon_sim = RaceSimulation(env, factor)
 
-  # Populate simulation configuration data.
-  marathon_sim = RaceSimulation(env, factor)
-  # Run simulation for all applicable days of the year.
-  for index, row in weather_data.iterrows():
+    # Run simulation for all applicable days of the year.
+    for index, row in weather_data.iterrows():
       date, temperature, humidity, wind = row
       # print(f"Running simulation with {scenario} budget for date {date} with temperature {temperature}, humidity {humidity}, wind {wind}")
-      runners, resources = marathon_sim.run([temperature, humidity, wind], 12895, 1500) # magic numbers come from data analysis (data/process_marathon_data.r)
+      runners, resources = marathon_sim.run([temperature, humidity, wind], 12895, 1500)
       avg_pace = np.mean([runner.pace for runner in runners])
-      simulation_results[scenario].append((date, avg_pace))
+      temp_results.append((date, avg_pace))
+
+    all_simulation_runs.append(temp_results)
+
+  # Compute the average results across all repetitions.
+  avg_results = {}
+  for day in range(len(weather_data)):
+      avg_pace = np.mean([run[day][1] for run in all_simulation_runs])
+      avg_results[weather_data.iloc[day, 0]] = avg_pace
+
+  simulation_results[scenario] = list(avg_results.items())
 
   ##########################
   #  Simulation analysis   #
@@ -205,7 +216,7 @@ for scenario, factor in budget_scenarios.items():
   # Get day with best average results
   results_df = pd.DataFrame(simulation_results[scenario], columns=['Date', 'Average pace'])
   best_day = results_df.loc[results_df['Average pace'].idxmin()]
-  print(f"\nBest Simulation Day: {best_day['Date']} with average runners' pace: {best_day['Average pace']:.2f}")
+  print(f"Best Simulation Day: {best_day['Date']} with average runners' pace: {best_day['Average pace']:.2f}")
 
   # Get also the month with best results
   results_df['Date'] = pd.to_datetime(results_df['Date'])
